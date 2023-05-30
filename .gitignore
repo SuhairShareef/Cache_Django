@@ -1,0 +1,45 @@
+### PyCharm Patch ###
+# Comment Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-215987721
+
+# *.iml
+# modules.xml
+# .idea/misc.xml
+# *.ipr
+
+# Sonarlint plugin
+/.idea/sonarlint
+
+### Python ###
+# Byte-compiled / optimized / DLL files
+/*.py[cod]
+*$py.class
+
+
+# Distribution / packaging
+.Python
+/env/
+/build/
+/develop-eggs/
+/dist/
+/downloads/
+/eggs/
+/.eggs/
+/lib/
+/lib64/
+/parts/
+/sdist/
+/var/
+/wheels/
+/*.egg-info/
+/.installed.cfg
+/*.egg
+
+### Django ###
+*.log
+*.pot
+*.pyc
+/__pycache__/
+/local_settings.py
+/db.sqlite3
+/media
+/.idea/.gitignore
