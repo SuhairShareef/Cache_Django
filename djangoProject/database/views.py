@@ -160,17 +160,19 @@ def get_users(request):
     user_data = []
 
     for user in users:
-        user_data.append({
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            # Add any other user fields you want to include
-        })
+        user_data.append(
+            {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                # Add any other user fields you want to include
+            }
+        )
 
     response_data = {
-        'status': 'success',
-        'message': 'Users retrieved successfully',
-        'data': user_data,
+        "status": "success",
+        "message": "Users retrieved successfully",
+        "data": user_data,
     }
 
     return JsonResponse(response_data, safe=False)

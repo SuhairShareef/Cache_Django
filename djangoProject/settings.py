@@ -50,7 +50,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('Bearer',),
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 MIDDLEWARE = [
