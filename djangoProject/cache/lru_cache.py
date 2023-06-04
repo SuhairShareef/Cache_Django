@@ -77,5 +77,5 @@ class AppCache:
         return cls._instance
 
     def __init__(self, size: int = 1000):
-        if not hasattr(self, 'cache_instance'):
+        if not hasattr(self, "cache_instance"):
             self.cache_instance = LRUCache(size)
