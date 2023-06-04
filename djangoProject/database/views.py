@@ -1,13 +1,21 @@
+from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from djangoProject.cache.utils import app_cache
 from .models import Student
-from .serializers import StudentSerializer
+from .serializers import StudentSerializer, CustomTokenObtainPairSerializer
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def student_list(request):
     """
     Retrieve a list of all students.
@@ -37,6 +45,7 @@ def student_list(request):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def view_student(request, std_number):
     """
     Retrieve details of a specific student.
@@ -58,6 +67,7 @@ def view_student(request, std_number):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def create_student(request):
     """
     Create a new student or retrieve an existing student with the same student number.
@@ -92,6 +102,7 @@ def create_student(request):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def update_student(request, pk):
     """
     Update details of a specific student.
@@ -116,6 +127,7 @@ def update_student(request, pk):
 
 
 @api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
 def delete_student(request, std_number):
     """
     Delete a student based on the provided student number (std_number).
@@ -135,3 +147,30 @@ def delete_student(request, std_number):
         }
 
     return JsonResponse(response_data)
+
+
+def get_users(request):
+    """
+    Retrieve a list of all users.
+
+    Returns:
+        JsonResponse: JSON response containing the list of users.
+    """
+    users = User.objects.all()
+    user_data = []
+
+    for user in users:
+        user_data.append({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            # Add any other user fields you want to include
+        })
+
+    response_data = {
+        'status': 'success',
+        'message': 'Users retrieved successfully',
+        'data': user_data,
+    }
+
+    return JsonResponse(response_data, safe=False)
