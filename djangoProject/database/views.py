@@ -103,11 +103,11 @@ def create_student(request):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def update_student(request, pk):
+def update_student(request, std_number):
     """
     Update details of a specific student.
     """
-    student = get_object_or_404(Student, pk=pk)
+    student = get_object_or_404(Student, std_number=std_number)
     serializer = StudentSerializer(instance=student, data=request.data)
 
     if serializer.is_valid():
