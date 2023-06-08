@@ -6,4 +6,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("djangoProject.cache.urls")),
     path("data/", include("djangoProject.database.urls")),
+    path("document/", include("djangoProject.database_with_mongodb.urls")),
 ]

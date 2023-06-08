@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  djangoapp:
+    build: .
+    ports:
+      - 8000:8000
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_HOST=mongodb
+    volumes:
+      - .:/app
+    command: python manage.py runserver 0.0.0.0:8000
+
+  mongodb:
+    image: mongo
+    networks:
+      - db_net
+
+networks:
+  db_net:
