@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -21,12 +23,14 @@ def student_list(request):
     Retrieve a list of all students.
     """
     cache_key = "all_students"
-    students = app_cache.cache_instance.get(cache_key)
+    students_json = app_cache.cache_instance.get(cache_key)
 
-    if students is None:
+    if students_json is None:
         students = list(Student.objects.all())
-        app_cache.cache_instance.put(cache_key, students)
+        students_json = json.dumps(StudentSerializer(students, many=True).data)
+        app_cache.cache_instance.put(cache_key, students_json)
 
+    students = json.loads(students_json)
     if not students:
         response_data = {
             "status": "error",
@@ -35,11 +39,10 @@ def student_list(request):
         }
         return JsonResponse(response_data)
 
-    serializer = StudentSerializer(students, many=True)
     response_data = {
         "status": "success",
         "message": "Students retrieved successfully",
-        "data": serializer.data,
+        "data": students,
     }
     return JsonResponse(response_data, safe=False)
 
@@ -51,17 +54,18 @@ def view_student(request, std_number):
     Retrieve details of a specific student.
     """
     cache_key = f"student_{std_number}"
-    student = app_cache.cache_instance.get(cache_key)
+    student_json = app_cache.cache_instance.get(cache_key)
 
-    if student is None:
+    if student_json is None:
         student = get_object_or_404(Student, std_number=std_number)
-        app_cache.cache_instance.put(cache_key, student)
+        student_json = json.dumps(StudentSerializer(student).data)
+        app_cache.cache_instance.put(cache_key, student_json)
 
-    serializer = StudentSerializer(student)
+    student = json.loads(student_json)
     response_data = {
         "status": "success",
         "message": "Student retrieved successfully",
-        "data": serializer.data,
+        "data": student,
     }
     return JsonResponse(response_data)
 

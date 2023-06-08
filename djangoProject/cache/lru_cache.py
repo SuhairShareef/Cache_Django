@@ -1,66 +1,71 @@
-from collections import deque
+from pymongo import MongoClient
+from djangoProject.database_with_mongodb.apps import DatabaseWithMongodbConfig
 
 
 class LRUCache:
     """
-    LRU Cache model implementation
+    LRU Cache model implementation using MongoDB
     """
 
     def __init__(self, size: int = 1000):
         """
-        initialize the LRUCache
+        Initialize the LRUCache
 
         Args:
             size (int): The maximum size of the cache, default 1000
         """
-        self.data = {}
+        self.db_handle = DatabaseWithMongodbConfig.db_handle
+        self.client = DatabaseWithMongodbConfig.client
+        self.db = self.client["cache_db"]
+        self.collection = self.db["cache_data"]
+        self.collection.create_index([("key", 1)], unique=True)
         self.max_size = size
-        self.order = deque(maxlen=size)
 
     def put(self, key: str, value: any) -> None:
         """
-        insert a key-value pair into the cache
-        if the key already exists, the previous value is updated
-        if the cache is full, the least recently used item is removed
+        Insert a key-value pair into the cache.
+        If the key already exists, the previous value is updated.
+        If the cache is full, the least recently used item is removed.
 
         Args:
             key (str): The key
             value (any): The value associated with the key
         """
-        if key in self.data:
-            self.order.remove(key)
-            del self.data[key]
+        if key in self.collection.distinct("key"):
+            self.collection.delete_one({"key": key})
 
-        if len(self.data) == self.max_size:
+        if self.collection.count_documents({}) == self.max_size:
             self.pop_least_recently_used()
 
-        self.data[key] = value
-        self.order.append(key)
-        print(self.data)
+        self.collection.insert_one({"key": key, "value": value})
 
     def pop_least_recently_used(self) -> None:
         """
-        remove the least recently used item from the cache
+        Remove the least recently used item from the cache.
         """
-        if len(self.data) != 0:
-            key = self.order.popleft()
-            del self.data[key]
+        document = self.collection.find_one_and_delete({}, sort=[("_id", 1)])
+        if document:
+            print("Removing item:", document)
 
     def get(self, key: str) -> any:
         """
-        retrieve the value associated with a key from the cache
-        if the key is found, it's considered the most recently used item so the order is updated accordingly
+        Retrieve the value associated with a key from the cache.
+        If the key is found, it's considered the most recently used item so the order is updated accordingly.
 
         Args:
             key (str): The key to search for
         Returns:
             any: The value associated with the key, or None if the key is not found
         """
-        print(self.data)
-        if key in self.data:
-            self.order.remove(key)
-            self.order.append(key)
-            return self.data[key]
+        document = self.collection.find_one_and_update(
+            {"key": key},
+            {"$currentDate": {"lastAccessed": True}},
+            return_document=True,
+        )
+        if document:
+            print("GET from Cache")
+            print("Retrieving item:", document)
+            return document["value"]
         return None
 
 
